@@ -41,9 +41,18 @@ const Keyboard = {
     });
     return fragment;
   },
+
+  initTextArea() {
+    const area = `<div class="textarea">
+                      <textarea class="textarea-input"></textarea>
+                  </div>`;
+    document.body.insertAdjacentHTML('beforeend', area);
+    document.querySelector('.textarea-input').value = this.properties.value;
+  },
 };
 
 window.addEventListener('DOMContentLoaded', () => {
+  Keyboard.initTextArea();
   Keyboard.init();
 });
 

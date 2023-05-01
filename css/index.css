@@ -106,3 +106,22 @@ body {
     transform: scale(1);
   }
 }
+
+.textarea {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.textarea-input {
+  width: 90%;
+  height: 150px;
+  resize: none;
+  padding: .5rem;
+  font-size: 1.2rem;
+  outline: none;
+  border: 2px solid rgb(192, 7, 68);
+  border-radius: .5rem;
+}
