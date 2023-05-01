@@ -85,7 +85,7 @@ const Keyboard = {
         case 'Caps':
           key.addEventListener('click', () => {
             this.toggleCapsLock();
-            key.classList.toggle('key--toggled', this.properties.capsLock);
+            key.classList.toggle('key__toggled', this.properties.capsLock);
           });
 
           break;
@@ -113,11 +113,15 @@ const Keyboard = {
         case 'Shift':
           key.addEventListener('mousedown', () => {
             this.properties.shift = true;
-            this.toggleUpperCase();
+            if (this.properties.capsLock) {
+              this.removeUpperCase();
+            } else { this.addUpperCase(); }
           });
           key.addEventListener('mouseup', () => {
             this.properties.shift = false;
-            this.toggleUpperCase();
+            if (this.properties.capsLock) {
+              this.addUpperCase();
+            } else { this.removeUpperCase(); }
           });
 
           break;
@@ -154,12 +158,30 @@ const Keyboard = {
         case 'Win':
           //
           break;
-        default:
-          key.addEventListener('mousedown', () => {
+        case '←':
+          key.addEventListener('click', () => {
             const start = this.detectSelection()[0];
-            this.properties.value = [this.properties.value.slice(0, start), this.properties.capsLock
-              ? key.textContent.toUpperCase() : key.textContent.toLowerCase(),
-            this.properties.value.slice(start)].join('');
+            this.properties.selectionStart = start - 1;
+          });
+          break;
+        case '→':
+          key.addEventListener('click', () => {
+            const start = this.detectSelection()[0];
+            this.properties.selectionStart = start + 1;
+          });
+          break;
+        default:
+          key.addEventListener('click', () => {
+            const start = this.detectSelection()[0];
+            let value;
+            if (this.properties.capsLock) {
+              if (this.properties.shift) {
+                value = key.textContent;
+              } else { value = key.textContent.toUpperCase(); }
+            } else if (this.properties.shift) {
+              value = key.textContent.toUpperCase();
+            } else { value = key.textContent; }
+            this.properties.value = [this.properties.value.slice(0, start), value, this.properties.value.slice(start)].join('');
             this.properties.selectionStart = start + 1;
           });
 
@@ -172,27 +194,36 @@ const Keyboard = {
         key.classList.remove('active');
       });
       key.addEventListener('click', () => {
-        this.elements.area.textContent = this.properties.value;
+        this.elements.area.value = this.properties.value;
         this.elements.area.focus();
         this.elements.area.selectionStart = this.properties.selectionStart;
+        this.elements.area.selectionEnd = this.properties.selectionStart;
       });
     });
   },
 
   toggleCapsLock() {
     this.properties.capsLock = !this.properties.capsLock;
-    this.toggleUpperCase();
+    if (this.properties.capsLock) {
+      this.addUpperCase();
+    } else {
+      this.removeUpperCase();
+    }
   },
 
-  toggleUpperCase() {
+  addUpperCase() {
     document.querySelectorAll('.key__transformable').forEach((key) => {
-      key.classList.toggle('key__upperCase');
+      key.classList.add('key__upperCase');
+    });
+  },
+
+  removeUpperCase() {
+    document.querySelectorAll('.key__transformable').forEach((key) => {
+      key.classList.remove('key__upperCase');
     });
   },
 
   detectSelection() {
-    console.log(this.properties.selectionStart, this.properties.selectionEnd);
-    console.log(this.elements.area.selectionStart, this.elements.area.selectionEnd);
     return [this.elements.area.selectionStart, this.elements.area.selectionEnd];
   },
 };
@@ -203,9 +234,29 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 window.onkeydown = (e) => {
+  e.preventDefault();
   document.querySelector(`[data-key-code="${e.code}"]`).classList.add('active');
+  document.querySelectorAll('.key').forEach((key) => {
+    if (key.getAttribute('data-key-code') === e.code) {
+      let event = new Event('click', { bubbles: false });
+      key.dispatchEvent(event);
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        event = new Event('mousedown', { bubbles: false });
+        key.dispatchEvent(event);
+      }
+    }
+  });
 };
 
 window.onkeyup = (e) => {
+  e.preventDefault();
   document.querySelector(`[data-key-code="${e.code}"]`).classList.remove('active');
+  document.querySelectorAll('.key').forEach((key) => {
+    if (key.getAttribute('data-key-code') === e.code) {
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        const event = new Event('mouseup', { bubbles: false });
+        key.dispatchEvent(event);
+      }
+    }
+  });
 };
