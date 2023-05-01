@@ -9,13 +9,15 @@
 }
 
 :root {
-  --key-background: #b6b5b5;
-  --key-background-on-active: #222222;
+  --key-background: #6289f5;
+  --key-background-on-hover: #e2d5d5;
+  --key-background-on-active: #f8924e;
+  --key-background-on-toggled: #ff6600;
 }
 
 body {
   font-family: 'Oswald', sans-serif;
-  background-color: #ff9797;
+  background-color: #fab75f;
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -26,10 +28,12 @@ body {
 
 .keyboard {
   display: flex;
-  background-color: #949494;
-  border-radius: 10px;
+  background-color: #f3f3f2;
+  border: 3px solid var(--key-background-on-toggled);
+  border-radius: 20px;
   padding: 10px 15px;
   flex-direction: column;
+  box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.39);
 }
 
 .keyboard__row {
@@ -54,17 +58,31 @@ body {
   animation: key-scaler-out .8s ease-out forwards;
 }
 
-.key::after {
-  content: attr(data-key-display);
-}
-
-.key:hover, .key.active {
+.key.active {
   background-color: var(--key-background-on-active);
-  color: var(--key-background);
-  border-color: var(--key-background-on-active);
+  color: #000000;
+  border-color: #000000;
   transform: scale(.9);
   box-shadow: inset 1px 1px 1px #ccc;
   animation: key-scaler-in .8s ease-in forwards;
+}
+
+.key:hover {
+  background-color: var(--key-background-on-active);
+  color: #000000;
+  border-color: #000000;
+  transform: scale(.9);
+  box-shadow: inset 1px 1px 1px #ccc;
+}
+
+.key--toggled {
+  background-color: var(--key-background-on-toggled);
+  border: 1px solid #000000f5;
+  box-shadow: 1px 2px 2px #613838;
+}
+
+.key__upperCase {
+  text-transform: uppercase;
 }
 
 @keyframes color-scaler-in {
@@ -109,6 +127,8 @@ body {
 
 .textarea {
   width: 60%;
+  max-width: 800px;
+  min-width: 600px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -122,6 +142,6 @@ body {
   padding: .5rem;
   font-size: 1.2rem;
   outline: none;
-  border: 2px solid rgb(192, 7, 68);
+  border: 2px solid var(--key-background-on-toggled);
   border-radius: .5rem;
 }

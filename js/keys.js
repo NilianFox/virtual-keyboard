@@ -175,6 +175,7 @@ const keysLayout = [
       keyRu: 'Del',
       keyCode: 46,
       code: 'Delete',
+      size: '35px',
     },
   ],
   [
