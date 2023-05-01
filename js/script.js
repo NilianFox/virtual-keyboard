@@ -13,6 +13,8 @@ const Keyboard = {
     value: '',
     capsLock: false,
     shift: false,
+    selectionStart: 0,
+    selectionEnd: 0,
   },
 
   init() {
@@ -55,6 +57,9 @@ const Keyboard = {
                   </div>`;
     document.body.insertAdjacentHTML('beforeend', area);
     this.elements.area = document.querySelector('.textarea-input');
+    this.elements.area.addEventListener('select', () => {
+      this.detectSelection();
+    });
   },
 
   addKeysEvents() {
@@ -62,8 +67,17 @@ const Keyboard = {
       switch (key.textContent) {
         case 'Backspace':
           key.addEventListener('click', () => {
-            this.properties.value = this.properties.value
-              .substring(0, this.properties.value.length - 1);
+            const borders = this.detectSelection();
+            const start = borders[0] >= 1 ? borders[0] : 1;
+            if (borders[0] === borders[1]) {
+              this.properties.value = this.properties.value.substring(0, borders[0] - 1)
+                + this.properties.value.substring(borders[0], this.properties.value.length);
+              this.properties.selectionStart = start - 1;
+            } else {
+              this.properties.value = this.properties.value.substring(0, borders[0])
+                + this.properties.value.substring(borders[1], this.properties.value.length);
+              this.properties.selectionStart = start;
+            }
           });
 
           break;
@@ -78,14 +92,20 @@ const Keyboard = {
 
         case 'Enter':
           key.addEventListener('click', () => {
-            this.properties.value += '\n';
+            const start = this.detectSelection()[0];
+            this.properties.value = [this.properties.value.slice(0, start),
+              '\n', this.properties.value.slice(start)].join('');
+            this.properties.selectionStart = start + 1;
           });
 
           break;
 
         case 'Space':
           key.addEventListener('click', () => {
-            this.properties.value += ' ';
+            const start = this.detectSelection()[0];
+            this.properties.value = [this.properties.value.slice(0, start),
+              ' ', this.properties.value.slice(start)].join('');
+            this.properties.selectionStart = start + 1;
           });
 
           break;
@@ -103,10 +123,27 @@ const Keyboard = {
           break;
 
         case 'Del':
-          //
+          key.addEventListener('click', () => {
+            const borders = this.detectSelection();
+            const start = borders[0];
+            if (borders[0] === borders[1]) {
+              this.properties.value = this.properties.value.substring(0, borders[0])
+                + this.properties.value.substring(borders[0] + 1, this.properties.value.length);
+              this.properties.selectionStart = start;
+            } else {
+              this.properties.value = this.properties.value.substring(0, borders[0])
+                + this.properties.value.substring(borders[1], this.properties.value.length);
+              this.elements.area.selectionStart = start;
+            }
+          });
           break;
         case 'Tab':
-          //
+          key.addEventListener('click', () => {
+            const start = this.detectSelection()[0];
+            this.properties.value = [this.properties.value.slice(0, start),
+              '\t', this.properties.value.slice(start)].join('');
+            this.properties.selectionStart = start + 1;
+          });
           break;
         case 'Alt':
           //
@@ -117,23 +154,15 @@ const Keyboard = {
         case 'Win':
           //
           break;
-        case '↑':
-          //
-          break;
-        case '→':
-          //
-          break;
-        case '←':
-          //
-          break;
-        case '↓':
-          //
-          break;
         default:
           key.addEventListener('mousedown', () => {
-            this.properties.value += this.properties.capsLock
-              ? key.textContent.toUpperCase() : key.textContent.toLowerCase();
+            const start = this.detectSelection()[0];
+            this.properties.value = [this.properties.value.slice(0, start), this.properties.capsLock
+              ? key.textContent.toUpperCase() : key.textContent.toLowerCase(),
+            this.properties.value.slice(start)].join('');
+            this.properties.selectionStart = start + 1;
           });
+
           break;
       }
       key.addEventListener('mousedown', () => {
@@ -144,6 +173,8 @@ const Keyboard = {
       });
       key.addEventListener('click', () => {
         this.elements.area.textContent = this.properties.value;
+        this.elements.area.focus();
+        this.elements.area.selectionStart = this.properties.selectionStart;
       });
     });
   },
@@ -157,6 +188,12 @@ const Keyboard = {
     document.querySelectorAll('.key__transformable').forEach((key) => {
       key.classList.toggle('key__upperCase');
     });
+  },
+
+  detectSelection() {
+    console.log(this.properties.selectionStart, this.properties.selectionEnd);
+    console.log(this.elements.area.selectionStart, this.elements.area.selectionEnd);
+    return [this.elements.area.selectionStart, this.elements.area.selectionEnd];
   },
 };
 
