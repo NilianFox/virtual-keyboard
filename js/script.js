@@ -13,6 +13,7 @@ const Keyboard = {
     value: '',
     capsLock: false,
     shift: false,
+    ctrl: false,
     selectionStart: 0,
     selectionEnd: 0,
   },
@@ -137,7 +138,7 @@ const Keyboard = {
             } else {
               this.properties.value = this.properties.value.substring(0, borders[0])
                 + this.properties.value.substring(borders[1], this.properties.value.length);
-              this.elements.area.selectionStart = start;
+              this.properties.selectionStart = start;
             }
           });
           break;
@@ -150,10 +151,19 @@ const Keyboard = {
           });
           break;
         case 'Alt':
-          //
+          key.addEventListener('mousedown', () => {
+            if (this.properties.ctrl) {
+              this.changeLanguage();
+            }
+          });
           break;
         case 'Ctrl':
-          //
+          key.addEventListener('mousedown', () => {
+            this.properties.ctrl = true;
+          });
+          key.addEventListener('mouseup', () => {
+            this.properties.ctrl = false;
+          });
           break;
         case 'Win':
           //
@@ -226,37 +236,76 @@ const Keyboard = {
   detectSelection() {
     return [this.elements.area.selectionStart, this.elements.area.selectionEnd];
   },
+
+  changeLanguage() {
+    if (this.properties.language === 'rus') {
+      this.properties.language = 'eng';
+    } else { this.properties.language = 'rus'; }
+    this.saveToLocalStorage();
+    this.init();
+  },
+
+  saveToLocalStorage() {
+    localStorage.setItem('language', this.properties.language);
+  },
+
+  loadFromLocalStorage() {
+    if (localStorage.getItem('language')) {
+      this.properties.language = localStorage.getItem('language');
+    }
+  },
 };
 
 window.addEventListener('DOMContentLoaded', () => {
+  Keyboard.loadFromLocalStorage();
   Keyboard.initTextArea();
   Keyboard.init();
 });
 
-window.onkeydown = (e) => {
+document.onkeydown = (e) => {
   e.preventDefault();
-  document.querySelector(`[data-key-code="${e.code}"]`).classList.add('active');
-  document.querySelectorAll('.key').forEach((key) => {
-    if (key.getAttribute('data-key-code') === e.code) {
-      let event = new Event('click', { bubbles: false });
-      key.dispatchEvent(event);
-      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-        event = new Event('mousedown', { bubbles: false });
+  if (document.querySelector(`[data-key-code="${e.code}"]`)) {
+    document.querySelector(`[data-key-code="${e.code}"]`).classList.add('active');
+    document.querySelectorAll('.key').forEach((key) => {
+      if (key.getAttribute('data-key-code') === e.code) {
+        let event = new Event('click', { bubbles: false });
         key.dispatchEvent(event);
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+          event = new Event('mousedown', { bubbles: false });
+          key.dispatchEvent(event);
+        }
+        if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+          event = new Event('mousedown', { bubbles: false });
+          key.dispatchEvent(event);
+        }
+        if (e.code === 'AltLeft' || e.code === 'AltRight') {
+          event = new Event('mousedown', { bubbles: false });
+          key.dispatchEvent(event);
+        }
       }
-    }
-  });
+    });
+  }
 };
 
-window.onkeyup = (e) => {
+document.onkeyup = (e) => {
   e.preventDefault();
-  document.querySelector(`[data-key-code="${e.code}"]`).classList.remove('active');
-  document.querySelectorAll('.key').forEach((key) => {
-    if (key.getAttribute('data-key-code') === e.code) {
-      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-        const event = new Event('mouseup', { bubbles: false });
-        key.dispatchEvent(event);
+  if (document.querySelector(`[data-key-code="${e.code}"]`)) {
+    document.querySelector(`[data-key-code="${e.code}"]`).classList.remove('active');
+    document.querySelectorAll('.key').forEach((key) => {
+      if (key.getAttribute('data-key-code') === e.code) {
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+          const event = new Event('mouseup', { bubbles: false });
+          key.dispatchEvent(event);
+        }
+        if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+          const event = new Event('mouseup', { bubbles: false });
+          key.dispatchEvent(event);
+        }
+        if (e.code === 'AltLeft' || e.code === 'AltRight') {
+          const event = new Event('mouseup', { bubbles: false });
+          key.dispatchEvent(event);
+        }
       }
-    }
-  });
+    });
+  }
 };
