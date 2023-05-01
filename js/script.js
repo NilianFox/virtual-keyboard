@@ -258,6 +258,10 @@ const Keyboard = {
 
 window.addEventListener('DOMContentLoaded', () => {
   Keyboard.loadFromLocalStorage();
+  const info = `<img class="image" src="./assets/fox.png" alt="Fox">
+    <h1 class="title">Created by Danil Garmashov</h1>
+    <h2 class="hint">You can change the language with the Ctrl+Alt combination!</h2>`;
+  document.body.insertAdjacentHTML('beforeend', info);
   Keyboard.initTextArea();
   Keyboard.init();
 });

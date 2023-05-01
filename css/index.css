@@ -22,7 +22,6 @@ body {
   width: 100vw;
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
 }
 
@@ -144,4 +143,14 @@ body {
   outline: none;
   border: 2px solid var(--key-background-on-toggled);
   border-radius: .5rem;
+}
+
+.hint {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.image {
+  max-width: 300px;
+  height: auto;
 }
